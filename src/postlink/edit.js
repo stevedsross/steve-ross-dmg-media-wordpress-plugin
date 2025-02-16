@@ -33,65 +33,12 @@ import './editor.scss';
  * @return {Element} Element to render.
  */
 export default function Edit( { attributes, setAttributes } ) {
-	const { query, postTitle, postLink, queryParams } = attributes;
+	const { query, postTitle, postLink, options, queryParams } = attributes;
 	const { useSelect } = wp.data;
 
-	// const posts = useSelect( ( select ) => {
-	// 	return select( 'core' ).getEntityRecords( 'postType', 'ANY', { status: 'publish'} );
-	// });
-
-	// if(posts.length >= 1) {
-	// 	posts.map( (post, index) => {
-	// 		filteredPosts.push({
-	// 			value: post.id,
-	// 			label: post.title,
-	// 		});
-	// 	});
-
-	// 	setAttributes({
-	// 		options: filteredPosts,
-	// 	});
-
-	// }
-
-
-	// const posts = apiFetch( { path: addQueryArgs('/wp/v2/posts', queryParams || {}) } ).then( ( posts ) => {
-	// 	let filteredPosts = [];
-
-	// 	if(posts.length >= 1) {
-	// 		posts.map( (post, index) => {
-	// 			filteredPosts.push({
-	// 				value: post.id,
-	// 				label: post.title.rendered,
-	// 			});
-	// 		});
-
-	// 		setAttributes({
-	// 			options: filteredPosts,
-	// 		});
-
-	// 	}
-	// } );
-
-	// console.log(posts);
-
-	const options = [
-		{
-			'value': 1,
-			'label': 'Small',
-			'url': 'https://small.local',
-		},
-		{
-			'value': 2,
-			'label': 'Medium',
-			'url': 'https://medium.local',
-		},
-		{
-			'value': 3,
-			'label': 'Large',
-			'url': 'https://large.local',
-		},
-	];
+	const posts = useSelect( ( select ) => {
+		return select( 'core' ).getEntityRecords( 'postType', 'post', queryParams );
+	});
 
 	return (
 		<>
@@ -104,23 +51,36 @@ export default function Edit( { attributes, setAttributes } ) {
 							'dmg-media-postlink'
 						) }
 						value={ query || '' }
-						// isLoading={ isLoading }
 						options={ options || [] }
 						onChange={ (value) => {
-							console.log(value);
+
+							const postIndex = options.findIndex( item => item.value == value);
+							const postObject = options[postIndex];
 
 							setAttributes({
 								query: value,
-								postLink: "permalink",
-								postTitle: "post title",
+								postLink: postObject.link,
+								postTitle: postObject.label,
 							});
+
 						} }
-						onFilterValueChange={ ( inputValue ) => setAttributes({
-								options: options.filter( ( option ) =>
-									option.value === inputValue
-								),
-							})
-						}
+						onFilterValueChange={ ( inputValue ) => {
+							if(isNumeric(inputValue)) {
+								setAttributes({
+									options: formatPostData(posts),
+									queryParams: {
+										include: inputValue,
+									},
+								});
+							} else {
+								setAttributes({
+									options: formatPostData(posts),
+									queryParams: {
+										search: inputValue,
+									},
+								})
+							}
+						}}
 					/>
 				</PanelBody>
 			</InspectorControls>
@@ -129,4 +89,26 @@ export default function Edit( { attributes, setAttributes } ) {
 			</p>
 		</>
 	);
+}
+
+function isNumeric(str) {
+	if (typeof str != "string") return false // we only process strings!
+	return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+		   !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+  }
+
+function formatPostData(posts){
+	let postOptions = [];
+
+	if(posts) {
+		posts.map( (post) => {
+			postOptions.push({
+				value: post.id,
+				label: post.title.rendered,
+				link: post.link,
+			});
+		});
+	}
+
+	return postOptions;
 }

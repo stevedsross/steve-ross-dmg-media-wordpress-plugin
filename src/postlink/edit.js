@@ -11,7 +11,10 @@ import { __ } from '@wordpress/i18n';
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { PanelBody, ComboboxControl } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -29,13 +32,58 @@ import './editor.scss';
  *
  * @return {Element} Element to render.
  */
-export default function Edit() {
+export default function Edit( { attributes, setAttributes } ) {
+	console.log(attributes);
+
+	const { query, postTitle, postLink, options, queryParams } = attributes;
+
+	// const posts = apiFetch( { path: addQueryArgs('/wp/v2/posts', queryParams || {}) } ).then( ( posts ) => {
+	// 	let filteredPosts = [];
+
+	// 	if(posts.length >= 1) {
+	// 		posts.map( (post, index) => {
+	// 			filteredPosts.push({
+	// 				value: post.id,
+	// 				label: post.title.rendered,
+	// 			});
+	// 		});
+
+	// 		setAttributes({
+	// 			options: filteredPosts,
+	// 		});
+
+	// 	}
+	// } );
+
+	// console.log(posts);
+
 	return (
-		<p { ...useBlockProps() }>
-			{ __(
-				'Steve Ross Dmg Media – hello from the editor!',
-				'dmg-media-postlink'
-			) }
-		</p>
+		<>
+			<InspectorControls>
+				<PanelBody title={ __('Settings', 'dmg-media-postlink') }>
+					<ComboboxControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'Select Post',
+							'dmg-media-postlink'
+						) }
+						value={ query || '' }
+						// isLoading={ isLoading }
+						options={ options || [] }
+						onFilterValueChange={ ( inputValue ) => {
+							console.log(inputValue);
+
+							// setAttributes({
+							// 	query: inputValue,
+							// 	postTitle: inputValue,
+							// })
+						} }
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<p { ...useBlockProps() }>
+				Read More: <a href={ postLink }>{ postTitle }</a>
+			</p>
+		</>
 	);
 }

@@ -9,7 +9,16 @@
 	"description": "The anchor should be prepended with the words `Read More: `.",
 	"example": {},
 	"supports": {
-		"html": false
+		"html": false,
+		"color": {
+			"background": false,
+			"text": true
+		}
+	},
+	"attributes": {
+		"post_id" : {
+			"type": "number"
+		}
 	},
 	"textdomain": "dmg-media",
 	"editorScript": "file:./index.js",

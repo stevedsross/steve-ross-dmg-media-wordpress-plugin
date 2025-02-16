@@ -25,10 +25,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
 
-add_action( 'init', 'dmg_media_postlink' );
 function dmg_media_postlink() {
 	register_block_type( __DIR__ . '/build/postlink' );
 }
+add_action( 'init', 'dmg_media_postlink' );
 
 if(class_exists('WP_CLI')) WP_CLI::add_command( 'dmg-read-more-search', 'DMG_READ_MORE_SEARCH' );
 function DMG_READ_MORE_SEARCH( $args ) {

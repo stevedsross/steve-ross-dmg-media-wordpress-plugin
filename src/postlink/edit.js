@@ -33,9 +33,27 @@ import './editor.scss';
  * @return {Element} Element to render.
  */
 export default function Edit( { attributes, setAttributes } ) {
-	console.log(attributes);
+	const { query, postTitle, postLink, queryParams } = attributes;
+	const { useSelect } = wp.data;
 
-	const { query, postTitle, postLink, options, queryParams } = attributes;
+	// const posts = useSelect( ( select ) => {
+	// 	return select( 'core' ).getEntityRecords( 'postType', 'ANY', { status: 'publish'} );
+	// });
+
+	// if(posts.length >= 1) {
+	// 	posts.map( (post, index) => {
+	// 		filteredPosts.push({
+	// 			value: post.id,
+	// 			label: post.title,
+	// 		});
+	// 	});
+
+	// 	setAttributes({
+	// 		options: filteredPosts,
+	// 	});
+
+	// }
+
 
 	// const posts = apiFetch( { path: addQueryArgs('/wp/v2/posts', queryParams || {}) } ).then( ( posts ) => {
 	// 	let filteredPosts = [];
@@ -57,6 +75,24 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	// console.log(posts);
 
+	const options = [
+		{
+			'value': 1,
+			'label': 'Small',
+			'url': 'https://small.local',
+		},
+		{
+			'value': 2,
+			'label': 'Medium',
+			'url': 'https://medium.local',
+		},
+		{
+			'value': 3,
+			'label': 'Large',
+			'url': 'https://large.local',
+		},
+	];
+
 	return (
 		<>
 			<InspectorControls>
@@ -70,14 +106,21 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ query || '' }
 						// isLoading={ isLoading }
 						options={ options || [] }
-						onFilterValueChange={ ( inputValue ) => {
-							console.log(inputValue);
+						onChange={ (value) => {
+							console.log(value);
 
-							// setAttributes({
-							// 	query: inputValue,
-							// 	postTitle: inputValue,
-							// })
+							setAttributes({
+								query: value,
+								postLink: "permalink",
+								postTitle: "post title",
+							});
 						} }
+						onFilterValueChange={ ( inputValue ) => setAttributes({
+								options: options.filter( ( option ) =>
+									option.value === inputValue
+								),
+							})
+						}
 					/>
 				</PanelBody>
 			</InspectorControls>
